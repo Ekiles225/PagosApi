@@ -7,7 +7,9 @@ import { sequelize } from './db/conexion.js';
 
 import RouterPrestamos from './routes/PrestamoRouter.js';
 import RouterPago from './routes/PagoRouter.js';
-import RouterHistorial from './routes/HistorialModel.js';
+import RouterHistorial from './routes/HistorialRoute.js';
+import RouterCliente from './routes/ClienteRouter.js';
+
 
 
 
@@ -25,6 +27,8 @@ app.use(cors());
 app.use('/api', RouterPrestamos); // Asegúrate de importar tu router);
 app.use('/api', RouterPago); // Asegúrate de importar tu router);
 app.use('/api', RouterHistorial); // Asegúrate de importar tu router);
+app.use('/api', RouterCliente); // Asegúrate de importar tu router);
+
 
 
 

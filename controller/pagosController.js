@@ -2,14 +2,15 @@ import { PagoModel } from "../model/PagoModel.js";
 
 export const createPago = async (req, res) => {
     try {
-        const { monto_pagado, fecha_pago, saldo_restante} = req.body;
-        if (!(monto_pagado || fecha_pago || saldo_restante)) {
+        const { monto_pagado,fecha_pago, saldo_restante, prestamo_id } = req.body;
+        if (!(monto_pagado ||fecha_pago  || saldo_restante || prestamo_id)) {
             res.status(400).json({ message: "all input is required" });
         }
         const pago = await PagoModel.create({
             monto_pagado,
             fecha_pago,
-            saldo_restante
+            saldo_restante,
+            prestamo_id
         });
         res.status(201).json({ pago });
     }

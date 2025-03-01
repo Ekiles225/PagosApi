@@ -3,13 +3,14 @@ import { HistorialModel } from "../model/HistorialModel.js";
 
 export const createHistorial = async (req, res) => {
     try {
-        const { accion, detalle} = req.body;
-        if (!(accion || detalle)) {
+        const { accion, detalle, usuario_id} = req.body;
+        if (!(accion || detalle || usuario_id)) {
             res.status(400).json({ message: "all input is required" });
         }
         const historial = await HistorialModel.create({
             accion,
-            detalle
+            detalle,
+            usuario_id
         });
         res.status(201).json({ historial });
     }

@@ -4,8 +4,8 @@ import { PrestamoModel } from "../model/PrestamoModel.js";
 
 export const createPrestamo = async (req, res) => {
     try {
-        const { monto, tasa_interes, fecha_inicio, fecha_vencimiento, estado, descripcion } = req.body;
-        if (!(monto || tasa_interes || fecha_inicio || fecha_vencimiento || estado || descripcion)) {
+        const { monto, tasa_interes, fecha_inicio, fecha_vencimiento, estado, descripcion, cliente_id } = req.body;
+        if (!(monto || tasa_interes || fecha_inicio || fecha_vencimiento || estado || descripcion || cliente_id)) {
             res.status(400).json({ message: "all input is required" });
         }
         const prestamo = await PrestamoModel.create({
@@ -15,6 +15,7 @@ export const createPrestamo = async (req, res) => {
             fecha_vencimiento,
             estado,
             descripcion,
+            cliente_id
         });
         res.status(201).json({ prestamo });
     }
