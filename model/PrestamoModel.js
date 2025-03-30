@@ -2,7 +2,6 @@ import { sequelize } from '../db/conexion.js';
 import { DataTypes } from 'sequelize';
 import { ClienteModel } from './ClienteModel.js';
 
-
 export const PrestamoModel = sequelize.define('Prestamo', {
   id: {
     type: DataTypes.INTEGER,
@@ -31,10 +30,15 @@ export const PrestamoModel = sequelize.define('Prestamo', {
   },
   descripcion: {
     type: DataTypes.TEXT
+  },
+  total_a_pagar: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
   }
 }, {
   timestamps: false
 });
 
-ClienteModel.hasMany(PrestamoModel, { foreignKey: 'cliente_id' });
+// Relaciones
+ClienteModel.hasMany(PrestamoModel, { foreignKey: 'cliente_id', onDelete: 'CASCADE', hooks: true });
 PrestamoModel.belongsTo(ClienteModel, { foreignKey: 'cliente_id' });

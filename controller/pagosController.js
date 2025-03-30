@@ -1,23 +1,47 @@
+import { ClienteModel } from "../model/ClienteModel.js";
 import { PagoModel } from "../model/PagoModel.js";
+import { PrestamoModel } from "../model/PrestamoModel.js";
+import { Op } from 'sequelize';
+
 
 export const createPago = async (req, res) => {
     try {
-        const { monto_pagado,fecha_pago, saldo_restante, prestamo_id } = req.body;
-        if (!(monto_pagado ||fecha_pago  || saldo_restante || prestamo_id)) {
-            res.status(400).json({ message: "all input is required" });
+        const { prestamo_id, monto_pagado, fecha_pago } = req.body;
+
+        // Verificar que el préstamo existe
+        const prestamo = await PrestamoModel.findByPk(prestamo_id);
+        if (!prestamo) {
+            return res.status(404).json({ message: "Préstamo no encontrado" });
         }
-        const pago = await PagoModel.create({
+
+        // Calcular el total de pagos anteriores
+        const totalPagos = await PagoModel.sum('monto_pagado', { where: { prestamo_id } }) || 0;
+
+        // Nuevo saldo restante
+        const saldo_restante = parseFloat(prestamo.total_a_pagar) - (totalPagos + parseFloat(monto_pagado));
+
+        if (saldo_restante < 0) {
+            return res.status(400).json({ message: "El pago excede el monto total a pagar" });
+        }
+
+        // Crear el pago con el saldo restante actualizado
+        const nuevoPago = await PagoModel.create({
+            prestamo_id,
             monto_pagado,
             fecha_pago,
-            saldo_restante,
-            prestamo_id
+            saldo_restante
         });
-        res.status(201).json({ pago });
+
+        res.status(201).json({
+            mensaje: "Pago registrado con éxito",
+            pago: nuevoPago
+        });
+
+    } catch (error) {
+        console.error("Error al registrar el pago:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
     }
-    catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+};
 
 export const getPagos = async (req, res) => {
     try {
@@ -28,33 +52,71 @@ export const getPagos = async (req, res) => {
     }
 }
 
-export const getPagoById = async (req, res) => {
+
+export const consultarPagos = async (req, res) => {
     try {
-        const pago = await PagoModel.findByPk(req.params.id);
-        if (!pago) {
-            res.status(404).json({ message: "pago not found" });
-        }
-        res.status(200).json({ pago });
+        const pagos = await PagoModel.findAll({
+            include: {
+                model: PrestamoModel,
+                include: {
+                    model: ClienteModel,
+                    attributes: ['nombre', 'dni'] // Solo traemos estos campos
+                }
+            }
+        });
+
+        res.json(pagos);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al consultar los pagos' });
     }
-}
+};
 
 export const updatePago = async (req, res) => {
     try {
         const pago = await PagoModel.findByPk(req.params.id);
         if (!pago) {
-            res.status(404).json({ message: "pago not found" });
+            return res.status(404).json({ message: "Pago no encontrado" });
         }
-        const { monto_pagado, fecha_pago, saldo_restante } = req.body;
+
+        const { monto_pagado, fecha_pago } = req.body;
+
+        // Obtener el préstamo asociado al pago
+        const prestamo = await PrestamoModel.findByPk(pago.prestamo_id);
+        if (!prestamo) {
+            return res.status(404).json({ message: "Préstamo no encontrado" });
+        }
+
+        // Obtener el total de pagos EXCLUYENDO este pago
+        const totalPagosPrevios = await PagoModel.sum('monto_pagado', { 
+            where: { 
+                prestamo_id: prestamo.id, 
+                id: { [Op.ne]: pago.id } // Excluir el pago actual
+            }
+        }) || 0;
+
+        // Nuevo saldo restante
+        const nuevoSaldoRestante = parseFloat(prestamo.total_a_pagar) - (totalPagosPrevios + parseFloat(monto_pagado));
+
+        if (nuevoSaldoRestante < 0) {
+            return res.status(400).json({ message: "El nuevo pago excede el total a pagar" });
+        }
+
+        // Actualizar el pago con el nuevo saldo restante
         await pago.update({
             monto_pagado,
             fecha_pago,
-            saldo_restante
+            saldo_restante: nuevoSaldoRestante
         });
-        res.status(200).json({ pago });
+
+        res.status(200).json({ 
+            mensaje: "Pago actualizado con éxito", 
+            pago 
+        });
+
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error al actualizar el pago:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
     }
 }
 

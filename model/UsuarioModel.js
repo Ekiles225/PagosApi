@@ -1,5 +1,7 @@
 import { sequelize } from '../db/conexion.js';
 import { DataTypes } from 'sequelize';
+import { PersonsModel } from './PersonsModel.js';
+
 
 export const UsuarioModel = sequelize.define('Usuario', {
   id: {
@@ -9,11 +11,6 @@ export const UsuarioModel = sequelize.define('Usuario', {
   },
   nombreYapellido: {
     type: DataTypes.STRING,
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
     allowNull: false
   },
   passware: {
@@ -34,3 +31,6 @@ export const UsuarioModel = sequelize.define('Usuario', {
 }, {
   timestamps: false
 });
+
+PersonsModel.hasMany(UsuarioModel, { foreignKey: "person_id" });
+UsuarioModel.belongsTo(PersonsModel, { foreignKey: "person_id" });

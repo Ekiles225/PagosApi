@@ -2,7 +2,6 @@ import { sequelize } from '../db/conexion.js';
 import { DataTypes } from 'sequelize';
 import { PrestamoModel } from './PrestamoModel.js';
 
-
 export const PagoModel = sequelize.define('Pago', {
   id: {
     type: DataTypes.INTEGER,
@@ -17,14 +16,11 @@ export const PagoModel = sequelize.define('Pago', {
     type: DataTypes.DATEONLY,
     allowNull: false
   },
-  saldo_restante: {
-    type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
-  },
-  
-}, {
-  timestamps: false
-});
+  saldo_restante: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: false 
+  }
+}, { timestamps: false });
 
-PrestamoModel.hasMany(PagoModel, { foreignKey: 'prestamo_id' });
+PrestamoModel.hasMany(PagoModel, { foreignKey: 'prestamo_id', onDelete: 'CASCADE', hooks: true });
 PagoModel.belongsTo(PrestamoModel, { foreignKey: 'prestamo_id' });

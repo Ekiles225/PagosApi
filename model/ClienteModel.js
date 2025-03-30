@@ -30,6 +30,7 @@ export const ClienteModel = sequelize.define('Cliente', {
   }, {
     timestamps: false
   });
-  
-  UsuarioModel.hasMany(ClienteModel, { foreignKey: 'usuario_id' });
-  ClienteModel.belongsTo(UsuarioModel, { foreignKey: 'usuario_id' });
+
+// Relaciones con eliminación en cascada
+UsuarioModel.hasMany(ClienteModel, { foreignKey: 'usuario_id', onDelete: 'CASCADE', hooks: true });
+ClienteModel.belongsTo(UsuarioModel, { foreignKey: 'usuario_id' });

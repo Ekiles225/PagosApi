@@ -1,11 +1,11 @@
 import { Router } from 'express';
 const router = Router();
 
-import { createPago, getPagos, getPagoById, updatePago, deletePago, deletePagoNoAsociado} from '../controller/pagosController.js';
+import { createPago, getPagos, consultarPagos, updatePago, deletePago, deletePagoNoAsociado} from '../controller/pagosController.js';
 
 router.post('/pago', createPago);
 router.get('/pago', getPagos);
-router.get('/pago/:id', getPagoById);
+router.get('/pagos', consultarPagos);
 router.put('/pago/:id', updatePago);
 router.delete('/pago/:id', deletePago);
 router.delete('/pago', deletePagoNoAsociado);
