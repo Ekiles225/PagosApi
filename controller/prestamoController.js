@@ -2,15 +2,17 @@
 import { PrestamoModel } from "../model/PrestamoModel.js";
 import { ClienteModel } from "../model/ClienteModel.js";
 
+
 export const crearPrestamo = async (req, res) => {
     try {
         const { cliente_id, monto, tasa_interes, fecha_inicio, fecha_vencimiento, estado, descripcion } = req.body;
+
+        console.log("Datos recibidos:", { cliente_id, monto, tasa_interes, fecha_inicio, fecha_vencimiento, estado, descripcion });
 
         if (!cliente_id || !monto || !tasa_interes || !fecha_inicio || !fecha_vencimiento) {
             return res.status(400).json({ mensaje: "Todos los campos son obligatorios" });
         }
 
-        // Cálculo automático del total a pagar
         const total_a_pagar = parseFloat(monto) + (parseFloat(monto) * parseFloat(tasa_interes) / 100);
 
         const nuevoPrestamo = await PrestamoModel.create({
@@ -34,7 +36,6 @@ export const crearPrestamo = async (req, res) => {
         res.status(500).json({ mensaje: "Error interno del servidor" });
     }
 };
-
 
 export const getPrestamos = async (req, res) => {
     try {

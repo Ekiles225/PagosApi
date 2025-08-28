@@ -17,10 +17,6 @@ export const UsuarioModel = sequelize.define('Usuario', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  rol: {
-    type: DataTypes.ENUM('admin', 'deudor'),
-    allowNull: false
-  },
   telefono: {
     type: DataTypes.STRING
   },
